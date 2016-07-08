@@ -2,7 +2,6 @@
 
 based on  the ubuntu 15.04     
 
-## these are four simple projects  
   
 project 1: add a system call to the linux kernel  
   
