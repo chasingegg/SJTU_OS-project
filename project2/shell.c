@@ -5,8 +5,6 @@
 #include<stdlib.h>
 #include<string.h>
 #include<sys/types.h>
-#include<dirent.h>
-#include<fcntl.h>
 
 #define MAX_LINE 80
 #define BUFFER_SIZE 50
@@ -14,7 +12,7 @@
 char buffer[BUFFER_SIZE];
 char history[10][BUFFER_SIZE]; //store the history command
 int NumOfCommand = 0;   //the num of history command, the maximum value is 10
-
+int start_index = 0;
 
 void setup(char inputBuffer[], char *args[], int *background)
 {
@@ -69,17 +67,13 @@ void setup(char inputBuffer[], char *args[], int *background)
 		exit(0);
 	}
 	
+	strcpy(history[(start_index + NumOfCommand) % 10], inputBuffer);
 	if(NumOfCommand == 10) //if the num of history command is 10,move the olddest command out
 	{
-		for(i = 0; i < 9; ++i)
-		{
-			strcpy(history[i], history[i + 1]);
-		}
-		strcpy(history[9], inputBuffer);
+		start_index = (start_index + 1 + 10) % 10;
 	}
 	else
 	{
-		strcpy(history[NumOfCommand], inputBuffer); //put it to the history
 		++NumOfCommand;   	
 	}
 
@@ -126,11 +120,13 @@ void handle_SIGINT()      //get the Ctrl-c signal, to display the history comman
 	//printf("\nCaught Ctrl C\n");
 	write(STDOUT_FILENO, buffer, strlen(buffer));
 	printf("The Command History:\n");
-	int i = 0;
+	int i;
+	i = start_index;
+	int j = 0;
 	fflush(stdout);
-	for(; i < NumOfCommand; ++i)
+	for(; i < NumOfCommand + start_index; ++i)
 	{
-		printf("%d. %s", i + 1, history[i]);
+		printf("%d. %s", ++j, history[i % 10]);
 		//fflush(stdout);
 	}
 	//printf("COMMAND-> ");
@@ -207,6 +203,7 @@ int main()
 }
 
 	
+
 
 
 
